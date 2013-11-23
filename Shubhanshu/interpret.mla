@@ -1,0 +1,310 @@
+open Ast
+
+
+
+module VarMap = Map.Make(struct
+  type t = string
+  let compare x y = Pervasives.compare x y
+end)
+
+exception ReturnException of int * int VarMap.t
+
+type env = {
+    var_int   : int VarMap.t; 
+    var_float : float VarMap.t;
+    var_string: string VarMap.t;
+    is_result      : bool; 
+    result_type    : string; 
+    result 		   : int * string * float * bool
+  }
+(* Main entry point: run a program *)
+let run prog = 
+	let rec eval env = function
+		  Integers(i) -> {env with is_result = true ; result_type = "int" ; result = (i,"",0.0,false)}
+		| Floats(f) -> {env with is_result = true ; result_type = "float" ; result = (0,"",f,false)}
+		| Strings(s) -> {env with is_result = true ; result_type = "string" ; result = (0,s,0.0,false)}
+      	| Id(v) ->
+	  		if (VarMap.mem v env.var_int) then 
+	  			{env with is_result = true ; result_type = "int" ; result = ((VarMap.find v env.var_int),"",0.0,false)}
+          	else if (VarMap.mem v env.var_float) then 
+          		{env with is_result = true ; result_type = "float" ; result = (0,"",(VarMap.find v env.var_float),false)}
+          	else if (VarMap.mem v env.var_string) then
+          		{env with is_result = true ; result_type = "string" ; result = (0,(VarMap.find v env.var_string),0.0,false)}
+          	else raise (Failure ("undeclared variable " ^ v))
+	  	| Declare(t,v) -> 
+	  		let env =
+	  				if (VarMap.mem v env.var_int) then {env with var_int = VarMap.remove v env.var_int}
+	  				else if (VarMap.mem v env.var_float) then {env with var_float = VarMap.remove v env.var_float}
+	  				else if (VarMap.mem v env.var_string) then {env with var_string = VarMap.remove v env.var_string}
+	  				else env
+	  		in
+	  		(match t with 
+  			   	|"int" -> {env with var_int = VarMap.add v 0 env.var_int ; is_result = false}
+  			   	|"float" -> {env with var_float = VarMap.add v 0.0 env.var_float ; is_result = false}
+  			   	|"image" -> {env with var_string = VarMap.add v "" env.var_string ; is_result = false}
+  			   	|"pixel" -> {env with var_int = VarMap.add v 0 env.var_int ; is_result = false}
+  			   	|"string" -> {env with var_string = VarMap.add v "" env.var_string ; is_result = false}
+  			   	|_ -> env
+  			)
+	  	| DAssign(t,v,e) ->
+	  		let env = eval env e in
+	  		let env =
+	  				if (VarMap.mem v env.var_int) then {env with var_int = VarMap.remove v env.var_int}
+	  				else if (VarMap.mem v env.var_float) then {env with var_float = VarMap.remove v env.var_float}
+	  				else if (VarMap.mem v env.var_string) then {env with var_string = VarMap.remove v env.var_string}
+	  				else env
+	  		in
+	  		let (i,s,f,b) = env.result in
+	  		if env.is_result then
+	  			if t = env.result_type then
+		  			(match t with 
+		  			   	|"int" -> {env with var_int = VarMap.add v i env.var_int ; is_result = false}
+  					   	|"float" -> {env with var_float = VarMap.add v f env.var_float ; is_result = false}
+  					   	|"image" -> {env with var_string = VarMap.add v s env.var_string ; is_result = false}
+  					   	|"pixel" -> {env with var_int = VarMap.add v i env.var_int ; is_result = false}
+  			   			|"string" -> {env with var_string = VarMap.add v s env.var_string ; is_result = false}
+  			   			| _ -> env
+  			   		)
+  			   	else raise (Failure ("Mismatch in types: Variable " ^ v ^ " is of type " ^ t ^ " and result is of type " ^ env.result_type))
+  			else raise (Failure ("Failure in Assignment to variable " ^ v ^ " because RHS is not a result"))
+      	| Assign(v, e) ->
+	  		let env = eval env e in
+	  		let (i,s,f,b) = env.result in
+	  		let t = (try ignore (VarMap.find v env.var_int); "int"
+          		with Not_found -> try ignore (VarMap.find v env.var_float); "float"
+          		with Not_found -> try ignore (VarMap.find v env.var_string); "string"
+          		with Not_found -> raise (Failure ("undeclared variable " ^ v)))
+            in
+	  		if env.is_result then
+	  			if t = env.result_type then
+		  			(match t with 
+  				   		|"int" -> {env with var_int = VarMap.add v i env.var_int ; is_result = true}
+  					   	|"float" -> {env with var_float	 = VarMap.add v f env.var_float ; is_result = true}
+  					   	|"image" -> {env with var_string = VarMap.add v s env.var_string ; is_result = true}
+  			   			|"pixel" -> {env with var_int = VarMap.add v i env.var_int ; is_result = true}
+  			   			|"string" -> {env with var_string = VarMap.add v s env.var_string ; is_result = true}
+  			   			| _ -> env
+  			   		)
+  			   	else raise (Failure ("Mismatch in types: Variable " ^ v ^ " is of type " ^ t ^ " and result is of type " ^ env.result_type))
+  			else raise (Failure ("Failure in Assignment to variable " ^ v ^ " because RHS is not a result"))
+      	| Call("print", [e]) ->
+	  			let env = eval env e in
+	  			(if env.is_result then
+	  				let (i,s,f,b) = env.result in 
+		  			(match env.result_type with 
+  				   		|"int" -> print_int i
+  					   	|"float" -> print_float f
+  					   	|"image" -> print_string s
+  			   			|"pixel" -> print_int i
+  			   			|"string" -> print_string s
+  			   			| _ -> raise (Failure ("Invalid Arguments to print"))
+  			   		)
+  				else raise (Failure ("Invalid Arguments to print"))
+  				)
+	  			;print_endline "" ;{env with is_result = false}
+  	  	| Call("newImage",[e]) -> 
+  	  		let env = eval env e in
+  	  			let (_,s,_,_) = env.result in
+	  	  			print_endline s; {env with is_result = true ; result_type = "string" ; result = (0,s,0.0,false)}
+  	  	| Call(_,_) -> env
+	in 
+	let env = {var_int = VarMap.empty ; 
+		var_float = VarMap.empty ; 
+		var_string = VarMap.empty ; 
+		is_result = false ; 
+		result_type = "" ; 
+		result = (0,"",0.0,false)
+		}
+	in
+	List.fold_left eval env prog
+
+
+
+open Ast
+
+module NameMap = Map.Make(struct
+  type t = string
+  let compare x y = Pervasives.compare x y
+end)
+
+exception ReturnException of int * int NameMap.t
+
+type env = {
+    var_int_g   : int VarMap.t; 
+    var_float_g : float VarMap.t;
+    var_string_g: string VarMap.t;
+    var_int_l   : int VarMap.t; 
+    var_float_l : float VarMap.t;
+    var_string_l: string VarMap.t;
+    is_result      : bool; 
+    result_type    : string; 
+    result       : int * string * float * bool
+  }
+
+(* Main entry point: run a program *)
+
+let run (vars, funcs) =
+  (* Put function declarations in a symbol table *)
+  let func_decls = List.fold_left
+      (fun funcs fdecl -> NameMap.add fdecl.fname fdecl funcs)
+      NameMap.empty funcs
+  in
+
+  (* Invoke a function and return an updated global symbol table *)
+  let rec call fdecl actuals globals =
+
+    (* Evaluate an expression and return (value, updated environment) *)
+    let rec eval env = function
+        Integers(i) -> {env with is_result = true ; result_type = "int" ; result = (i,"",0.0,false)}
+      | Floats(f) -> {env with is_result = true ; result_type = "float" ; result = (0,"",f,false)}
+      | Strings(s) -> {env with is_result = true ; result_type = "string" ; result = (0,s,0.0,false)}
+      | Noexpr -> 1, env (* must be non-zero for the for loop predicate *)
+      | Id(v) ->
+        if (VarMap.mem v env.var_int_l) then 
+          {env with is_result = true ; result_type = "int" ; result = ((VarMap.find v env.var_int_l,"",0.0,false)}
+        else if (VarMap.mem v env.var_float_l) then 
+              {env with is_result = true ; result_type = "float" ; result = (0,"",(VarMap.find v env.var_float_l),false)}
+        else if (VarMap.mem v env.var_string_l) then 
+              {env with is_result = true ; result_type = "float" ; result = (0,"",(VarMap.find v env.var_string_l),false)}
+        else if (VarMap.mem v env.var_int_g) then 
+              {env with is_result = true ; result_type = "float" ; result = (0,"",(VarMap.find v env.var_int_g),false)}
+        else if (VarMap.mem v env.var_float_g) then
+              {env with is_result = true ; result_type = "string" ; result = (0,(VarMap.find v env.var_float_g),0.0,false)}
+        else if (VarMap.mem v env.var_string_g) then 
+              {env with is_result = true ; result_type = "float" ; result = (0,"",(VarMap.find v env.var_string_g),false)}
+        else raise (Failure ("undeclared variable " ^ v))
+      
+
+
+      | Binop(e1, op, e2) ->    (*have to change*)
+        let v1, env = eval env e1 in
+        let v2, env = eval env e2 in
+        let boolean i = if i then 1 else 0 in
+          (match op with
+             Add -> v1 + v2
+            | Sub -> v1 - v2
+            | Mult -> v1 * v2
+            | Div -> v1 / v2
+            | Equal -> boolean (v1 = v2)
+            | Neq -> boolean (v1 != v2)
+            | Less -> boolean (v1 < v2)
+            | Leq -> boolean (v1 <= v2)
+            | Greater -> boolean (v1 > v2)
+            | Geq -> boolean (v1 >= v2)), env
+      
+
+
+      | Assign(v, e) ->
+        let env = eval env e in
+        let (i,s,f,b) = env.result in
+        let t,scope = (try ignore (VarMap.find v env.var_int_l); "int","local"
+              with Not_found -> try ignore (VarMap.find v env.var_float_l); "float","local"
+              with Not_found -> try ignore (VarMap.find v env.var_string_l); "string","local"
+              with Not_found -> try ignore (VarMap.find v env.var_int_g); "int","global"
+              with Not_found -> try ignore (VarMap.find v env.var_float_g); "float","global"
+              with Not_found -> try ignore (VarMap.find v env.var_string_g); "string","global"
+              with Not_found -> raise (Failure ("undeclared variable " ^ v)))
+            in
+        if env.is_result then
+          if t = env.result_type then
+            (match t,scope with 
+                |"int","local" -> {env with var_int_l = VarMap.add v i env.var_int_l ; is_result = true}
+                |"float","local" -> {env with var_float_l  = VarMap.add v f env.var_float_l ; is_result = true}
+                |"float","global", -> {env with _g = VarMap.add v s env.var_float_g ; is_result = true}
+                |"int","global" -> {env with var_int_g = VarMap.add v i env.var_int_g ; is_result = true}
+                |"string","local" -> {env with var_string_l = VarMap.add v s env.var_string_l ; is_result = true}
+                |"string","global" -> {env with var_string_g = VarMap.add v s env.var_string_g ; is_result = true}
+                | _ -> env
+              )
+            else raise (Failure ("Mismatch in types: Variable " ^ v ^ " is of type " ^ t ^ " and result is of type " ^ env.result_type))
+        else raise (Failure ("Failure in Assignment to variable " ^ v ^ " because RHS is not a valid result"))
+      | Call("print", [e]) ->
+          let env = eval env e in
+          (if env.is_result then
+            let (i,s,f,b) = env.result in 
+            (match env.result_type with 
+                |"int" -> print_int i
+                |"float" -> print_float f
+                |"image" -> print_string s
+                |"pixel" -> print_int i
+                |"string" -> print_string s
+                | _ -> raise (Failure ("Invalid Arguments to print"))
+              )
+          else raise (Failure ("Invalid Arguments to print"))
+          )
+          ;print_endline "" ;{env with is_result = false}
+      | Call("newImage",[e]) -> 
+          let env = eval env e in
+            let (_,s,_,_) = env.result in
+              print_endline s; {env with is_result = true ; result_type = "string" ; result = (0,s,0.0,false)}
+
+
+
+      | Call(f, actuals) ->        (*have to change beyond this*)
+        let fdecl =
+          try NameMap.find f func_decls
+          with Not_found -> raise (Failure ("undefined function " ^ f))
+        in
+        let actuals, env = List.fold_left
+          (fun (actuals, env) actual ->
+            let v, env = eval env actual in v :: actuals, env)
+              ([], env) (List.rev actuals)
+        in
+        let (locals, globals) = env in
+          try
+            let globals = call fdecl actuals globals
+            in 0, (locals, globals)
+          with ReturnException(v, globals) -> v, (locals, globals)
+        in
+
+    (* Execute a statement and return an updated environment *)
+        let rec exec env = function
+           Block(stmts) -> List.fold_left exec env stmts
+          | Expr(e) -> let _, env = eval env e in env
+          | If(e, s1, s2) ->
+              let v, env = eval env e in
+              exec env (if v != 0 then s1 else s2)
+          | While(e, s) ->
+              let rec loop env =
+                let v, env = eval env e in
+                if v != 0 then loop (exec env s) else env
+              in loop env
+          | For(e1, e2, e3, s) ->
+              let _, env = eval env e1 in
+              let rec loop env =
+                let v, env = eval env e2 in
+                if v != 0 then
+                  let _, env = eval (exec env s) e3 in
+                  loop env
+                else
+                  env
+              in loop env
+          | Return(e) ->
+              let v, (locals, globals) = eval env e in
+              raise (ReturnException(v, globals))
+        in
+
+    (* Enter the function: bind actual values to formal arguments *)
+        let locals =
+          try List.fold_left2
+            (fun locals formal actual -> NameMap.add formal actual locals)
+              NameMap.empty fdecl.formals actuals
+          with Invalid_argument(_) ->
+            raise (Failure ("wrong number of arguments passed to " ^ fdecl.fname))
+        in
+    (* Initialize local variables to 0 *)
+        let locals = List.fold_left
+          (fun locals local -> NameMap.add local 0 locals) locals fdecl.locals
+        in
+    (* Execute each statement in sequence, return updated global symbol table *)
+        snd (List.fold_left exec (locals, globals) fdecl.body)
+
+  (* Run a program: initialize global variables to 0, find and run "main" *)
+        
+  in 
+  let globals = List.fold_left
+    (fun globals vdecl -> NameMap.add vdecl 0 globals) NameMap.empty vars
+  in 
+  try
+    call (NameMap.find "main" func_decls) [] globals
+  with Not_found -> raise (Failure ("did not find the main() function"))

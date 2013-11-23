@@ -1,0 +1,76 @@
+int a;
+float b;
+string c;
+image d;
+pixel e;
+
+
+tp(int t,float p)
+{
+	float s;
+	int r;
+	string y;
+	y = "Thank You";
+	r=t;
+	s = p;
+	print(r);
+	print(s);
+	.;
+}
+
+
+main()
+{	.;
+	string y;
+	a=4;
+	b=1.23;
+	y = " No Thank You";
+	print(y);
+	tp(a,b);
+	print("Done");
+}
+
+
+
+
+
+/*int a = 3;
+print(a);
+float c = 1.536;
+image b;
+b = newImage("./sample.png");
+print(c);
+int c = 2;
+print(c);
+print(a);
+print(b);
+*/
+
+
+/*
+INT ID(a) SEMI IMAGE ID(b) SEMI
+
+
+[Declare("int","a");Declare("image","b")]
+*/
+
+
+
+/*
+program:
+int a =2; float b = 1.5; print(a);
+
+scanner o/p:
+INT ID("a") ASSIGN LITERAL(2) SEMI FLOAT ID("b") ASSIGN FLOAT(1.5) SEMI ID("print") LPAREN ID("a") RPAREN
+
+parser o/p:
+[DAssign("int",a,Literal(2));DAssign("float",b,Float(1.5));Call("print",[Id("a")])]
+
+
+| "bool"   { BOOL }
+| "true"   { TRUE }
+| "false"  { FALSE }
+
+  with Illegal_character (character,line) -> print_endline ("Illegal Character '" ^ character ^ "' on line " ^ string_of_int line); Parser.program Scanner.token lexbuf
+
+*/
