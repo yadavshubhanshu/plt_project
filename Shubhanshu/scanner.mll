@@ -6,36 +6,40 @@
  }
 
 rule token = parse
-  [' ' '\t'] { token lexbuf } (* Whitespace *)
-| ['\r' '\n'] {incr line ; token lexbuf }  
-| "/*"     { comment lexbuf }           (* Comments *)
-| '('      { LPAREN }
-| ')'      { RPAREN }
-| '{'      { LBRACE }
-| '}'      { RBRACE }
-| ';'      { SEMI }
-| ','      { COMMA }
-| '+'      { PLUS }
-| '-'      { MINUS }
-| '*'      { TIMES }
-| '/'      { DIVIDE }
-| '='      { ASSIGN }
-| "=="     { EQ }
-| "!="     { NEQ }
-| '<'      { LT }
-| "<="     { LEQ }
-| ">"      { GT }
-| ">="     { GEQ }
-| "if"     { IF }
-| "else"   { ELSE }
-| "for"    { FOR }
-| "while"  { WHILE }
-| "return" { RETURN }
-| "int"    { INT }
-| "image"  { IMAGE }
-| "pixel"  { PIXEL }
-| "float"  { FLOAT }
-| "string" { STRING }
+  [' ' '\t'] 	{ token lexbuf } (* Whitespace *)
+| ['\r' '\n'] 	{incr line ; token lexbuf }  
+| "/*"     		{ comment lexbuf }           (* Comments *)
+| '('      		{ LPAREN }
+| ')'      		{ RPAREN }
+| '{'      		{ LBRACE }
+| '}'      		{ RBRACE }
+| ';'      		{ SEMI }
+| ','      		{ COMMA }
+| '+'      		{ PLUS }
+| '-'      		{ MINUS }
+| '*'      		{ TIMES }
+| '/'      		{ DIVIDE }
+| '='      		{ ASSIGN }
+| "=="     		{ EQ }
+| "!="     		{ NEQ }
+| '<'      		{ LT }
+| "<="     		{ LEQ }
+| ">"      		{ GT }
+| ">="     		{ GEQ }
+| "if"     		{ IF }
+| "else"   		{ ELSE }
+| "for"    		{ FOR }
+| "while"  		{ WHILE }
+| "int"    		{ INT }
+| "Array"  		{ ARRAY }
+| "bool"   		{ BOOL }
+| "image"  		{ IMAGE }
+| "pixel"    	{ PIXEL }
+| "float"    	{ FLOAT }
+| "string"   	{ STRING }
+| "return" 	 	{ RETURN }
+| "break"  	 	{ BREAK }
+| "continue" 	{ CONTINUE}
 | '"'([^'"']+ as str)'"'	{ STRINGS(str) }
 | ['0'-'9']+ as lxm { INTEGERS(int_of_string lxm) }
 | (['0'-'9']*'.'['0'-'9']+)|(['0'-'9']+'.'['0'-'9']*) as flt {FLOATS(float_of_string flt)}
