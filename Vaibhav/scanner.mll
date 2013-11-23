@@ -8,7 +8,7 @@
 rule token = parse
   [' ' '\t'] { token lexbuf } (* Whitespace *)
 | ['\r' '\n'] {incr line ; token lexbuf }  
-| "/*"     { comment lexbuf }           (* Comments *)
+| "/*"     { comment 0 lexbuf }           (* Comments *)
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -36,18 +36,23 @@ rule token = parse
 | "pixel"  { PIXEL }
 | "float"  { FLOAT }
 | "string" { STRING }
+| "bool"   { BOOL }
+| "true"   { TRUE }
+| "false"  { FALSE }
+| "break"  	 	{ BREAK }
+| "continue" 	{ CONTINUE}
+| "Array"  		{ ARRAY }
 | '"'([^'"']+ as str)'"'	{ STRINGS(str) }
 | ['0'-'9']+ as lxm { INTEGERS(int_of_string lxm) }
 | (['0'-'9']*'.'['0'-'9']+)|(['0'-'9']+'.'['0'-'9']*) as flt {FLOATS(float_of_string flt)}
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
-| _ as chr { ERROR(Char.escaped chr,!line) }
+| _ as chr { raise (Failure ("Illegal Character '"^ Char.escaped chr ^ "' at line " ^ string_of_int !line)) }
 
-and comment = parse
-  "*/" { token lexbuf }
-| _    { comment lexbuf }
-
-{
-
-
-}
+and comment level = parse
+  "*/" { if (level=0) then (token lexbuf) else (comment (level-1) lexbuf)}
+| "/*" { comment (level+1) lexbuf}
+| ['\r' '\n'] {incr line ; comment level lexbuf }  
+| eof  { raise (Failure ("comment not closed"))}
+| _    { comment level lexbuf }

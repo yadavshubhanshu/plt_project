@@ -1,26 +1,27 @@
 int a;
 float b;
 string c;
-image d;
+image _d;
 pixel e;
 
 
 tp(int t,float p)
-{
-	float s;
+{	float s;
 	int r;
 	string y;
 	y = "Thank You";
 	r=t;
+	if (a=b) a=b;
 	s = p;
 	print(r);
 	print(s);
-	.;
+	s.grt();
+	
 }
 
 
 main()
-{	.;
+{	
 	string y;
 	a=4;
 	b=1.23;
@@ -28,17 +29,21 @@ main()
 	print(y);
 	tp(a,b);
 	print("Done");
+
 }
 
 
 
 
 
-/*int a = 3;
+/*
+
+
+int a = 3;
 print(a);
 float c = 1.536;
 image b;
-b = newImage("./sample.png");
+/*b = newImage("./sample.png");*/
 print(c);
 int c = 2;
 print(c);
@@ -70,7 +75,9 @@ parser o/p:
 | "bool"   { BOOL }
 | "true"   { TRUE }
 | "false"  { FALSE }
+| ['0'-'9']['a'-'z' 'A'-'Z' '0'-'9' '_']* as chr { print_endline ("Illegal Identifier '"^ chr ^ "' at line " ^ string_of_int !line); token lexbuf }
 
   with Illegal_character (character,line) -> print_endline ("Illegal Character '" ^ character ^ "' on line " ^ string_of_int line); Parser.program Scanner.token lexbuf
-
+Char.escaped
+ERROR(chr,!line)
 */
