@@ -18,8 +18,8 @@ let _ =
     let program = Parser.program Scanner.token lexbuf   in
   match action with
 
-  | Ast -> let listing = Ast.string_of_program (program)
-           in print_endline listing
+  | Ast -> (*let listing = Ast.string_of_program (program)
+           in print_endline listing*) print_endline "Not Implemented Yet"
   | Interpret -> (*ignore (Interpret.run (List.rev program))*)print_endline "Not Implemented Yet"
   | Bytecode -> print_endline "Not Implemented Yet"
   | Compile -> print_endline "Not Implemented Yet"

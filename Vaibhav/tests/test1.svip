@@ -1,26 +1,28 @@
-int a;
+int a,b,c=2;
 float b;
-string c;
+string c9;
 image _d;
 pixel e;
 
 
-tp(int t,float p)
-{	float s;
+
+int tp(int t,float p)
+{
+	float s;
 	int r;
+	if (a=b) a=b;
 	string y;
 	y = "Thank You";
 	r=t;
-	if (a=b) a=b;
 	s = p;
 	print(r);
 	print(s);
-	s.grt();
+
 	
 }
 
 
-main()
+int main()
 {	
 	string y;
 	a=4;
