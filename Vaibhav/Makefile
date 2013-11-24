@@ -48,6 +48,11 @@ svipc.tar.gz : $(TARFILES)
 
 .PHONY : clean
 clean :
+	rm -f parser.ml parser.mli scanner.ml testall.log \
+	*.cmo *.cmi *.out *.diff
+
+.PHONY : clean_all
+clean_all :
 	rm -f svipc parser.ml parser.mli scanner.ml testall.log \
 	*.cmo *.cmi *.out *.diff
 
