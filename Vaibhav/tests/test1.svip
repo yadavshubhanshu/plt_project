@@ -2,8 +2,8 @@ int a,b,c=2;
 float b;
 string c9;
 image _d;
-pixel e;
-
+//pixel e;
+;
 
 
 int tp(int t,float p)

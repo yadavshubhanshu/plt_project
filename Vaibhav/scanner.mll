@@ -19,6 +19,7 @@ rule token = parse
   [' ' '\t'] { token lexbuf } (* Whitespace *)
 | ['\r' '\n'] {(*incr_linenum lexbuf ;*) incr line;token lexbuf }  
 | "/*"     { comment 0 lexbuf }           (* Comments *)
+| "//"[^ '\n' '\r']*['\n' '\r']     { incr line; token lexbuf }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }

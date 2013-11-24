@@ -29,7 +29,7 @@
 
 program:
   /* nothing */ { [], [] }
- | program vdecl { ($2 :: fst $1), snd $1 }
+ | program vdecl_opt { ($2 :: fst $1), snd $1 }
  | program fdefn { fst $1, ($2 :: snd $1) }
  | program error {(*print_endline ("Error while parsing ") ;*) (fst $1,snd $1)}
   
@@ -42,6 +42,10 @@ fdefn:
       formals = $4;
       body = (List.rev $6) 
       } }
+
+vdecl_opt:
+    SEMI    { Vdefn("void",["unknown"]) }
+  | vdecl   { $1 }
 
 vdecl:
     v_type id_list SEMI %prec NOASSIGN     { Vdefn($1,$2) }
@@ -85,7 +89,7 @@ actual_opt:
   | actual_opt COMMA expr  { $3::$1 }
 
 stmt:
-  expr SEMI { Expr($1) }
+  expr_opt SEMI { Expr($1) }
 | vdecl { Vdecl($1) }
 | stmt_block { Block($1) }
 | IF LPAREN expr RPAREN stmt %prec NOELSE  { If($3,$5,Block([])) }
