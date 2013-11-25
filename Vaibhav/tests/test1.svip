@@ -1,16 +1,19 @@
 int a,b,c=2;
-float b;
+ b;
 string c9;
 image _d;
 //pixel e;
 ;
 
 
-int tp(int t,float p)
+  tps(int t,float p)
 {
 	float s;
 	int r;
-	if (a=b) a=b;
+	if (a==b) 
+	{ a=b;
+	b=c;
+	}
 	string y;
 	y = "Thank You";
 	r=t;

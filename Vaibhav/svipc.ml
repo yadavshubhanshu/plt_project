@@ -18,7 +18,8 @@ let _ =
     match action with
 
     | Ast -> let listing = Ast.string_of_program (List.rev (fst program),List.rev (snd program))
-             in print_endline listing;print_endline "Program has beed parsed"
+             in print_endline listing;
+             print_endline ("Program has beed parsed with " ^  " errors.")
     | Interpret -> (*ignore (Interpret.run (List.rev program))*)print_endline "Not Implemented Yet"
     | Bytecode -> print_endline "Program has been parsed"
     | Compile -> print_endline "Program has been parsed"

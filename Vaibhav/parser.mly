@@ -1,11 +1,13 @@
 %{ open Ast ;;
+  let error_count = ref 0
   (*Parsing.set_trace true;;*)
-  (*let parse_error s =  print_endline (s)*)(*("parse error on line " ^ (string_of_int start_pos.pos_lnum));*)
-  (*let pos = Parsing.symbol_start_pos() in
-  let lineNum = pos.Lexing.pos_lnum
-  print_endline (s ^ " : parse error on line " ^ (string_of_int lineNum))*)
+  let error_position () =
+  let spos = Parsing.symbol_start_pos() and epos = Parsing.symbol_end_pos() in
+      "on line " ^ string_of_int spos.Lexing.pos_lnum ^ " at characters " ^ string_of_int (spos.Lexing.pos_cnum - spos.Lexing.pos_bol) ^ " - " ^ string_of_int (epos.Lexing.pos_cnum - epos.Lexing.pos_bol)
 
 
+
+ (* let parse_error s =  incr error_count; print_string ("Error "^string_of_int !error_count ^ " : ")*)
 
 %}
 
@@ -38,7 +40,7 @@ program:
   /* nothing */ { [], [] }
  | program vdecl_opt { ($2 :: fst $1), snd $1 }
  | program fdefn { fst $1, ($2 :: snd $1) }
-/* | program error {(*print_endline ("Error while parsing ") ;*) (fst $1,snd $1)}*/
+ /*| program error {print_endline ("Error while parsing " ^ error_position()) ; (fst $1,snd $1)}*/
   
 
 fdefn:
@@ -49,22 +51,33 @@ fdefn:
       formals = $4;
       body = $6 
       } }
+  | error ID LPAREN formal_opt RPAREN stmt_block
+     { print_endline ("No return type "  ^ error_position ());{ 
+      rtype = "";
+      fname = $2;
+      formals = $4;
+      body = $6 
+      } }
+ 
 
 vdecl_opt:
     SEMI    { Vdefn("",[]) }
   | vdecl   { $1 }
+  
 
 vdecl:
     v_type id_list SEMI     { Vdefn($1,List.rev $2) }
   | v_type id_list ASSIGN expr SEMI  { Vassign($1,List.rev $2,$4) }
+  | v_type error SEMI   {print_endline ("Illegal identifier "  ^ error_position ());Vdefn("",[])}
+  | v_type id_list ASSIGN error SEMI   {print_endline ("Error in RHS "  ^ error_position ());Vdefn("",[])}
+  | error SEMI   {print_endline ("Type not declared "  ^ error_position ());Vdefn("",[])}
+  
 
 id_list:
     ID  { [$1] }
   | id_list COMMA ID { $3 :: $1  }
-  | id_list COMMA error { print_endline ("Illegal Identifier" ^ string_of_int (Parsing.symbol_start ()) ) ; $1 }
-  | error { let pos = Parsing.symbol_start_pos() in
-  let lineNum = pos.Lexing.pos_lnum in
-  print_endline ("parse error on line " ^ (string_of_int lineNum)) ; [] }
+/*  | id_list COMMA error { print_endline ("Illegal Identifier " ^ error_position ()); $1 }
+  | error { print_endline ("Illegal Identifier "  ^ error_position ()); [] }*/
 
 v_type:
   | VOID    { "void" }
@@ -75,6 +88,7 @@ v_type:
   | ARRAY   { "array" }
   | STRING  { "string" }
   | BOOL    { "bool" }
+ /* | error   { print_endline ("Error :Type unspecified "  ^ error_position ()); "" }*/
 
 stmt_block:
     LBRACE stmt_list RBRACE  { List.rev $2 }
