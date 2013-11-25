@@ -1,25 +1,12 @@
 { open Parser
-	let line = ref 1
-(*	type position = {
-     pos_fname : string;	(* file name *)
-     pos_lnum : int;		(* line number *)
-     pos_bol : int;		(* the offset of the beginning of the line *)
-     pos_cnum : int;		(* the offset of the position *)
-  } 
-  let incr_linenum lexbuf =
-    let pos = lexbuf.Lexing.lex_curr_p in
-    lexbuf.Lexing.lex_curr_p <- { pos with
-      Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
-      Lexing.pos_bol = pos.Lexing.pos_cnum;
-    }
-  ;;*)
+  
  }
 
 rule token = parse
   [' ' '\t'] { token lexbuf } (* Whitespace *)
-| ['\r' '\n'] {(*incr_linenum lexbuf ;*) incr line;token lexbuf }  
+| ['\r' '\n'] {Lexing.new_line lexbuf; token lexbuf }  
 | "/*"     { comment 0 lexbuf }           (* Comments *)
-| "//"[^ '\n' '\r']*['\n' '\r']     { incr line; token lexbuf }
+| "//"[^ '\n' '\r']*['\n' '\r']     {Lexing.new_line lexbuf; token lexbuf }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -60,12 +47,12 @@ rule token = parse
 | ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | (['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as var_id)'.'(['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as mthd) { OBJECT(var_id,mthd) }
 | eof { EOF }
-| _ as chr { raise (Failure ("Illegal Character '"^ Char.escaped chr ^ "' at line " ^ string_of_int !line)) }
+| _ as chr { raise (Failure ("Illegal Character '"^ Char.escaped chr ^ "' at line " ^ string_of_int lexbuf.Lexing.lex_curr_p.Lexing.pos_lnum)) }
 
 and comment level = parse
   "*/" { if (level=0) then (token lexbuf) else (comment (level-1) lexbuf)}
 | "/*" { comment (level+1) lexbuf}
-| ['\r' '\n'] {(*incr_linenum lexbuf ;*)incr line; comment level lexbuf }  
+| ['\r' '\n'] {Lexing.new_line lexbuf ; comment level lexbuf }  
 | eof  { raise (Failure ("comment not closed"))}
 | _    { comment level lexbuf }
 

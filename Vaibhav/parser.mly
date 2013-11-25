@@ -1,5 +1,12 @@
-%{ open Ast 
-  let parse_error s =  print_endline s(*("parse error on line " ^ (string_of_int start_pos.pos_lnum));*)
+%{ open Ast ;;
+  (*Parsing.set_trace true;;*)
+  (*let parse_error s =  print_endline (s)*)(*("parse error on line " ^ (string_of_int start_pos.pos_lnum));*)
+  (*let pos = Parsing.symbol_start_pos() in
+  let lineNum = pos.Lexing.pos_lnum
+  print_endline (s ^ " : parse error on line " ^ (string_of_int lineNum))*)
+
+
+
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
@@ -14,8 +21,8 @@
 %token <string * string> OBJECT
 %token EOF
 
-%nonassoc NOELSE NOASSIGN OBJVAR
-%nonassoc ELSE OBJCALL
+%nonassoc NOELSE
+%nonassoc ELSE
 %right ASSIGN
 %left EQ NEQ
 %left LT GT LEQ GEQ
@@ -31,7 +38,7 @@ program:
   /* nothing */ { [], [] }
  | program vdecl_opt { ($2 :: fst $1), snd $1 }
  | program fdefn { fst $1, ($2 :: snd $1) }
- | program error {(*print_endline ("Error while parsing ") ;*) (fst $1,snd $1)}
+/* | program error {(*print_endline ("Error while parsing ") ;*) (fst $1,snd $1)}*/
   
 
 fdefn:
@@ -40,20 +47,24 @@ fdefn:
       rtype = $1;
       fname = $2;
       formals = $4;
-      body = (List.rev $6) 
+      body = $6 
       } }
 
 vdecl_opt:
-    SEMI    { Vdefn("void",["unknown"]) }
+    SEMI    { Vdefn("",[]) }
   | vdecl   { $1 }
 
 vdecl:
-    v_type id_list SEMI %prec NOASSIGN     { Vdefn($1,$2) }
-  | v_type id_list ASSIGN expr SEMI  { Vassign($1,$2,$4) }
+    v_type id_list SEMI     { Vdefn($1,List.rev $2) }
+  | v_type id_list ASSIGN expr SEMI  { Vassign($1,List.rev $2,$4) }
 
 id_list:
     ID  { [$1] }
   | id_list COMMA ID { $3 :: $1  }
+  | id_list COMMA error { print_endline ("Illegal Identifier" ^ string_of_int (Parsing.symbol_start ()) ) ; $1 }
+  | error { let pos = Parsing.symbol_start_pos() in
+  let lineNum = pos.Lexing.pos_lnum in
+  print_endline ("parse error on line " ^ (string_of_int lineNum)) ; [] }
 
 v_type:
   | VOID    { "void" }
@@ -66,7 +77,7 @@ v_type:
   | BOOL    { "bool" }
 
 stmt_block:
-    LBRACE stmt_list RBRACE  { $2 }
+    LBRACE stmt_list RBRACE  { List.rev $2 }
 
 stmt_list:
     /*nothing*/     { [] }
@@ -78,7 +89,7 @@ expr_opt:
 
 formal_opt:
     /*nothing*/   { [] }
-  | formal_list   { $1 }
+  | formal_list   { List.rev $1 }
 
 formal_list:
     v_type ID    { [($1,$2)] }
@@ -118,6 +129,6 @@ expr:
   | expr LEQ    expr { Binop($1, Leq,    $3) }
   | expr GT     expr { Binop($1, Greater,$3) }
   | expr GEQ    expr { Binop($1, Geq,    $3) }
-  | ID LPAREN actual_opt RPAREN { Call($1,$3) }
-  | OBJECT LPAREN actual_opt RPAREN %prec OBJCALL { Objcall(fst $1,snd $1,$3) }
-  | OBJECT %prec OBJVAR { Objid(fst $1,snd $1) }
+  | ID LPAREN actual_opt RPAREN { Call($1,List.rev $3) }
+  | OBJECT LPAREN actual_opt RPAREN { Objcall(fst $1,snd $1,List.rev $3) }
+  | OBJECT  { Objid(fst $1,snd $1) }
