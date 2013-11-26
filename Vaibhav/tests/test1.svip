@@ -1,19 +1,22 @@
 int a,b,c=2;
  b;
-string c9;
-image _d;
+//string c9;
+//image _d;
 //pixel e;
-;
+//;
 
 
-  tps(int t,float p)
+int tps(int t,float p)
 {
 	float s;
 	int r;
 	if (a==b) 
 	{ a=b;
 	b=c;
+	test();
 	}
+	for(i=1;i<2;i=i+1){}
+	while(1){}
 	string y;
 	y = "Thank You";
 	r=t;
@@ -25,8 +28,9 @@ image _d;
 }
 
 
-int main()
+main()
 {	
+
 	string y;
 	a=4;
 	b=1.23;

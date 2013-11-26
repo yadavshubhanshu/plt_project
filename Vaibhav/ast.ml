@@ -88,9 +88,11 @@ let string_of_vdecl_opt = function
   | Vassign(ty,id,ex) -> ty ^ " " ^ string_of_id_list id ^ " = " ^ (string_of_expr ex) ^ ";\n"
 
 let string_of_fdefn fdefn =
+  if fdefn.fname <> "" then
   fdefn.rtype ^ " " ^ fdefn.fname ^ "(" ^ String.concat ", " (List.map string_of_formal fdefn.formals) ^ ")\n{\n" ^
   String.concat "" (List.map string_of_stmt fdefn.body) ^
   "}\n"
+  else ""
 
 let string_of_program (vars, funcs) =
   String.concat "" (List.map string_of_vdecl_opt vars) ^ "\n" ^
