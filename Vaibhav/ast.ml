@@ -83,7 +83,7 @@ let rec string_of_stmt = function
 let string_of_formal (ty,id) = ty ^ " " ^ id 
 
 let string_of_vdecl_opt = function
-    Vdefn("",_) -> ";\n"
+    Vdefn("",_) -> ""
   | Vdefn(ty,id) -> ty ^ " " ^ string_of_id_list id ^ ";\n"
   | Vassign(ty,id,ex) -> ty ^ " " ^ string_of_id_list id ^ " = " ^ (string_of_expr ex) ^ ";\n"
 
