@@ -61,21 +61,21 @@ fdefn:
  
 
 vdecl_opt:
-    SEMI    { Vdefn("",[]) }
+  SEMI    { Vdefn("empty semicolon",[]) } 
   | vdecl   { $1 }
-  
+  | error   { print_endline ("Illegal Declaration or Bad Programmer's memory "  ^ error_position ());Vdefn("error",[]) }
 
 vdecl:
-    v_type id_list SEMI     { Vdefn($1,List.rev $2) }
-  | v_type id_list ASSIGN expr SEMI  { Vassign($1,List.rev $2,$4) }
-  | v_type error SEMI   {print_endline ("Illegal identifier "  ^ error_position ());Vdefn("",[])}
-  | v_type id_list ASSIGN error SEMI   {print_endline ("Error in RHS "  ^ error_position ());Vdefn("",[])}
-  | error SEMI   {print_endline ("Type not declared "  ^ error_position ());Vdefn("",[])}
+    v_type id_list      { Vdefn(" vtype "^$1,List.rev $2) }
+  | v_type id_list ASSIGN expr   { Vassign(" Vassign "^$1,List.rev $2,$4) }
+/*  | v_type error SEMI   {print_endline ("Illegal identifier "  ^ error_position ());Vdefn("error",[])}
+  | v_type id_list ASSIGN error SEMI   {print_endline ("Error in RHS "  ^ error_position ());Vdefn("error",[])}
+  | error SEMI   {print_endline ("Type not declared "  ^ error_position ());Vdefn("error",[])}
   
-
+*/
 id_list:
-    ID  { [$1] }
-  | id_list COMMA ID { $3 :: $1  }
+    ID  { [" id "^$1] }
+  | id_list COMMA ID { (" idlist "^$3) :: $1  }
 /*  | id_list COMMA error { print_endline ("Illegal Identifier " ^ error_position ()); $1 }
   | error { print_endline ("Illegal Identifier "  ^ error_position ()); [] }*/
 
