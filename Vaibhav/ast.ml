@@ -17,15 +17,18 @@ type vdecl =
     Vdefn of string * (string list)
   | Vassign of string * (string list) * expr
 
+type vexpr = 
+    Vdecl of vdecl
+  | Expr of expr    
+
 type stmt =
     Block of stmt list
-  | Expr of expr
+  | Vexpr of vexpr
   | Return of expr
-  | Vdecl of vdecl
   | Break
   | Continue
   | If of expr * stmt * stmt
-  | For of expr * expr * expr * stmt
+  | For of vexpr * expr * expr * stmt
   | While of expr * stmt
 
 type func_decl = {
@@ -35,9 +38,8 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = (vdecl list) * (func_decl list)
-
-
+type program = (vdecl list) * (func_decl list) * int
+(*
 let rec string_of_expr = function
     Integers(l) -> string_of_int l
   | Floats(f) -> string_of_float f
@@ -62,20 +64,20 @@ let string_of_id_list id = String.concat "," id
 
 let string_of_vdecl = function
     Vdefn(ty,id) -> ty ^ " " ^ string_of_id_list id ^ ";\n"
-  | Vassign(ty,id,ex) -> ty ^ " " ^ string_of_id_list id ^ " = " ^ (string_of_expr ex) ^ ";\n"
+  | Vassign(ty,id,ex) -> ty ^ " " ^ string_of_id_list id ^ " = " ^ (string_of_expr ex) ^ ";\n"  | 
 
 let rec string_of_stmt = function
     Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Vdecl(vdecl) -> string_of_vdecl vdecl
-  | Expr(expr) -> string_of_expr expr ^ ";\n";
+  | Vexpr(vexpr) -> string_of_vexpr vexpr ^ ";\n";
   | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
   | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For(e1, e2, e3, s) ->
-      "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
+      "for (" ^ string_of_vexpr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
-  | While(e, s) -> "while (" ^ (string_of_expr e) ^ ") " ^ string_of_stmt s
+  | While(e, s) -> "while (" ^ (string_of_vexpr e) ^ ") " ^ string_of_stmt s
   | Return(ex) -> "return "^ (string_of_expr ex) ^ ";\n"
   | Break -> "break ;\n"
   | Continue -> "continue ;\n"
@@ -97,3 +99,4 @@ let string_of_fdefn fdefn =
 let string_of_program (vars, funcs) =
   String.concat "" (List.map string_of_vdecl_opt vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdefn funcs)
+*)

@@ -17,9 +17,10 @@ let _ =
     let program = Parser.program Scanner.token lexbuf   in
     match action with
 
-    | Ast -> let listing = Ast.string_of_program (List.rev (fst program),List.rev (snd program))
-             in print_endline listing;
-             print_endline ("Program has beed parsed with " ^  " errors.")
+    | Ast -> (*let listing = Ast.string_of_program (List.rev (fst program),List.rev (snd program))
+             in print_endline listing;*)
+          let (_,_,errors) = program in
+             print_endline ("Program has beed parsed with " ^ string_of_int errors ^ " errors.")
     | Interpret -> (*ignore (Interpret.run (List.rev program))*)print_endline "Not Implemented Yet"
     | Bytecode -> print_endline "Program has been parsed"
     | Compile -> print_endline "Program has been parsed"

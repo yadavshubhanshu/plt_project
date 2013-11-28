@@ -2,6 +2,7 @@
   let error_count = ref 0
   (*Parsing.set_trace true;;*)
   let error_position () =
+  incr error_count;
   let spos = Parsing.symbol_start_pos() and epos = Parsing.symbol_end_pos() in
       "on line " ^ string_of_int spos.Lexing.pos_lnum ^ " at characters " ^ string_of_int (spos.Lexing.pos_cnum - spos.Lexing.pos_bol) ^ " - " ^ string_of_int (epos.Lexing.pos_cnum - epos.Lexing.pos_bol)
 
@@ -37,9 +38,9 @@
 %%
 
 program:
-  /* nothing */ { [], [] }
- | program vdecl_opt {  ($2 :: fst $1), snd $1 }
- | program fdefn { fst $1, ($2 :: snd $1) }
+  /* nothing */ { ([], [], !error_count) }
+ | program vdecl_opt {let (a,b,_)=$1 in  (($2 :: a), b ,!error_count)}
+ | program fdefn {let (a,b,_)=$1 in (a, ($2 :: b),!error_count) }
  /*| program error {print_endline ("Error while parsing " ^ error_position()) ; (fst $1,snd $1)}*/
   
 
@@ -149,21 +150,26 @@ actual_opt:
     expr_opt   { [$1] }
   | actual_opt COMMA expr  { $3::$1 }
 
+v_expr_opt:
+  |  vdecl      { Vdecl($1) } 
+  |  expr_opt   { Expr($1) }
+
 stmt:
-  expr_opt SEMI { Expr($1) }
-| vdecl SEMI { Vdecl($1) }
+  v_expr_opt SEMI { Vexpr($1) }
 | stmt_block { Block($1) }
 | IF LPAREN expr RPAREN stmt %prec NOELSE  { If($3,$5,Block([])) }
 | IF LPAREN expr RPAREN stmt ELSE stmt  { If($3,$5,$7) }
-| FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt { For($3,$5,$7,$9) }
+| FOR LPAREN v_expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt { For($3,$5,$7,$9) }
 | WHILE LPAREN expr RPAREN stmt { While($3,$5) }
 | RETURN expr_opt SEMI  { Return($2) }
 | BREAK SEMI { Break }
 | CONTINUE SEMI { Continue }
-| error SEMI    { print_endline ("Error in statement " ^ error_position()); Expr(Noexpr) }
+| error SEMI    { print_endline ("Error in statement " ^ error_position() ^ " or maybe a missing semicolon in a prevous statement"); Vexpr(Expr(Noexpr)) }
+
 
 expr:
     ID ASSIGN expr { Assign($1,$3) }
+  /*| vdecl       { Vdecl($1) }*/
   | ID { Id($1) }
   | INTEGERS { Integers($1) }
   | STRINGS { Strings($1) }
