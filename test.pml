@@ -1,10 +1,13 @@
 chan queue = [] of {}
+int n;
+byte taken[n];
 
-proctype makeconfig(int n){
+proctype makeconfig(){
 	int i,j;
 	byte pos[n];
 	byte cols_in_use[n+1];
-	i = 1
+	pos[0] = 0;
+	i = 1;
 	do
 	:: (i<=n-1) ->  cols_in_use[i]=1;i++
 	:: (i>n-1) -> break
