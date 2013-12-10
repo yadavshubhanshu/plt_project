@@ -1,4 +1,4 @@
-OBJS = ast.cmo parser.cmo scanner.cmo svipc.cmo
+OBJS = sast.cmo ast.cmo parser.cmo scanner.cmo svipc.cmo
 
 TESTS = \
 arith1 \

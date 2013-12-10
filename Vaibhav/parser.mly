@@ -1,14 +1,14 @@
 %{ open Ast ;;
-  let error_count = ref 0
+  
   (*Parsing.set_trace true;;*)
   let error_position () =
-  incr error_count;
+  incr Ast.error_count;
   let spos = Parsing.symbol_start_pos() and epos = Parsing.symbol_end_pos() in
       "on line " ^ string_of_int spos.Lexing.pos_lnum ^ " at characters " ^ string_of_int (spos.Lexing.pos_cnum - spos.Lexing.pos_bol) ^ " - " ^ string_of_int (epos.Lexing.pos_cnum - epos.Lexing.pos_bol)
 
 
 
- (* let parse_error s =  incr error_count; print_string ("Error "^string_of_int !error_count ^ " : ")*)
+ (* let parse_error s =  incr Ast.error_count; print_string ("Error "^string_of_int !Ast.error_count ^ " : ")*)
 
 %}
 
@@ -38,9 +38,9 @@
 %%
 
 program:
-  /* nothing */ { ([], [], !error_count) }
- | program vdecl_opt {let (a,b,_)=$1 in  (($2 :: a), b ,!error_count)}
- | program fdefn {let (a,b,_)=$1 in (a, ($2 :: b),!error_count) }
+  /* nothing */ { ([], [], !Ast.error_count) }
+ | program vdecl_opt {let (a,b,_)=$1 in  (($2 :: a), b ,!Ast.error_count)}
+ | program fdefn {let (a,b,_)=$1 in (a, ($2 :: b),!Ast.error_count) }
  /*| program error {print_endline ("Error while parsing " ^ error_position()) ; (fst $1,snd $1)}*/
   
 
@@ -164,7 +164,7 @@ stmt:
 | RETURN expr_opt SEMI  { Return($2) }
 | BREAK SEMI { Break }
 | CONTINUE SEMI { Continue }
-| error SEMI    { print_endline ("Error in statement " ^ error_position() ^ " or maybe a missing semicolon in a prevous statement"); Vexpr(Expr(Noexpr)) }
+| error    { print_endline ("Error in statement " ^ error_position() ^ " or maybe a missing semicolon in a previous statement"); Vexpr(Expr(Noexpr)) }
 
 
 expr:
@@ -176,6 +176,7 @@ expr:
   | FLOATS { Floats($1) }
   | TRUE  { Boolean($1) }
   | FALSE { Boolean($1) }
+  | LPAREN expr RPAREN { $2 }
   | expr PLUS   expr { Binop($1, Add,    $3) }
   | expr MINUS  expr { Binop($1, Sub,    $3) }
   | expr TIMES  expr { Binop($1, Mult,   $3) }

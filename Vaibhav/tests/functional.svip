@@ -15,6 +15,8 @@ int test1(){}
  (){}
  */
 
+int a;
+
 int test(float a){
 	int a,b,c=2;
 	return 0;
@@ -26,10 +28,10 @@ int test(float a){
 
 int test2(int b){
 	test1();
-	test1(
+	test1();
 /*/ int test1(){}*/
 int a=2;
-	while(i>1){}
+	while(i>1);
 	while(i>1){
 		i=i+1;
 	}
@@ -40,4 +42,7 @@ int a=2;
 	test1(a);
 	a=3;
 	int b = test1();
+	image b;
+	b.get(2,3);
 }
+

@@ -1,3 +1,5 @@
+let error_count = ref 0
+
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 
 type expr =
@@ -39,7 +41,9 @@ type func_decl = {
   }
 
 type program = (vdecl list) * (func_decl list) * int
-(*
+
+
+
 let rec string_of_expr = function
     Integers(l) -> string_of_int l
   | Floats(f) -> string_of_float f
@@ -60,16 +64,24 @@ let rec string_of_expr = function
   | Objcall(obj,met,act) -> obj ^ "." ^ met ^ "(" ^ String.concat ", " (List.map string_of_expr act) ^ ")"
   | Noexpr -> ""
 
+
 let string_of_id_list id = String.concat "," id
+
 
 let string_of_vdecl = function
     Vdefn(ty,id) -> ty ^ " " ^ string_of_id_list id ^ ";\n"
-  | Vassign(ty,id,ex) -> ty ^ " " ^ string_of_id_list id ^ " = " ^ (string_of_expr ex) ^ ";\n"  | 
+  | Vassign(ty,id,ex) -> ty ^ " " ^ string_of_id_list id ^ " = " ^ (string_of_expr ex) ^ ";\n"
+
+
+let string_of_vexpr = function
+  Vdecl(vdecl) -> string_of_vdecl vdecl
+  |Expr(expr) ->string_of_expr expr 
+
+
 
 let rec string_of_stmt = function
     Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-  | Vdecl(vdecl) -> string_of_vdecl vdecl
   | Vexpr(vexpr) -> string_of_vexpr vexpr ^ ";\n";
   | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
   | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
@@ -77,7 +89,7 @@ let rec string_of_stmt = function
   | For(e1, e2, e3, s) ->
       "for (" ^ string_of_vexpr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
-  | While(e, s) -> "while (" ^ (string_of_vexpr e) ^ ") " ^ string_of_stmt s
+  | While(e, s) -> "while (" ^ (string_of_expr e) ^ ") " ^ string_of_stmt s
   | Return(ex) -> "return "^ (string_of_expr ex) ^ ";\n"
   | Break -> "break ;\n"
   | Continue -> "continue ;\n"
@@ -99,4 +111,3 @@ let string_of_fdefn fdefn =
 let string_of_program (vars, funcs) =
   String.concat "" (List.map string_of_vdecl_opt vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdefn funcs)
-*)
