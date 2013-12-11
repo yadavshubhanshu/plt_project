@@ -4,7 +4,14 @@ int a,b,c;
 int d = c = 3.0;
 int a=1.2;
 */
-float e = 2.3+1.4e-23;
-int x = c + 43 * 2;
+float e = 1.4e-23;
+//int x = c + 43 * 2;
 //int y = c + 43.0 * 2;
-bool z = print();
+int print(int a)
+{
+	
+}
+
+bool z = 2.0 * print(a);
+
+
