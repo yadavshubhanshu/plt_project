@@ -2,6 +2,13 @@
   
  }
 
+let digit = ['0' - '9']
+let integer = (digit)+'.'(digit)*('e'('+'|'-')?((digit)+))? 
+let fraction = '.'(digit)+('e'(('+'|'-')?)((digit)+))? 
+let exponent = (digit)+'e'('+'|'-')?(digit)+
+
+
+
 rule token = parse
   [' ' '\t'] { token lexbuf } (* Whitespace *)
 | ['\r' '\n'] {Lexing.new_line lexbuf; token lexbuf }  
@@ -42,8 +49,8 @@ rule token = parse
 | "continue" 	{ CONTINUE}
 | "Array"  		{ ARRAY }
 | '"'([^'"']+ as str)'"'	{ STRINGS(str) }
-| ['0'-'9']+ as lxm { INTEGERS(int_of_string lxm) }
-| (['0'-'9']*'.'['0'-'9']+)|(['0'-'9']+'.'['0'-'9']*) as flt {FLOATS(float_of_string flt)}
+| digit+ as lxm { INTEGERS(int_of_string lxm) }
+| (integer|fraction|exponent) as flt {FLOATS(float_of_string flt)}
 | ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | (['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as var_id)'.'(['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as mthd) { OBJECT(var_id,mthd) }
 | eof { EOF }
