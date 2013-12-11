@@ -37,6 +37,9 @@ scanner.ml : scanner.mll
 parser.ml parser.mli : parser.mly
 	ocamlyacc -v parser.mly
 
+ast.cmo : ast.ml
+	ocamlc -c ast.ml
+	
 %.cmo : %.ml
 	ocamlc -c $<
 
@@ -76,3 +79,5 @@ parser.cmx: ast.cmx parser.cmi
 scanner.cmo: parser.cmi 
 scanner.cmx: parser.cmx 
 parser.cmi: ast.cmo 
+sast.cmo: ast.cmo
+sast.cmx: ast.cmx
