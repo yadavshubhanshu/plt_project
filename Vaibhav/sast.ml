@@ -18,6 +18,8 @@ let rec check_expr varmap fmap = (function
 							in (if not(lhs = rhs) then (print_string ("Error : Variable "^id^" has type "^lhs^
 							" and RHS has type "^rhs^".\n")));lhs) 
 						else ((print_string ("Undeclared variable "^id^".\n"));"void")
+| Call("print",actuals) -> 
+(*Handle inbuilt print function here*) "void"
 | Call(id,actuals) -> 
 (if NameMap.mem id fmap then (
 	let fdecl = (NameMap.find id fmap) in 
@@ -49,22 +51,41 @@ else (print_string ("Undeclared function '"^id^"'.\n");""))
 | Noexpr -> "void"
 )
 
+let check_stmt vmap fmap current_func= (function
+| Block(stmt_list)  -> (vmap,fmap)
+| Vexpr(vexpr) -> (vmap,fmap)
+| Return(expr) -> let ty = (check_expr vmap fmap expr) in if current_func.rtype = ty then (vmap,fmap) else (print_string ("Expression is of type "^ty^" but expected return type is "^current_func.rtype^".\n"); (vmap,fmap) )
+| Break -> (vmap,fmap)
+| Continue -> (vmap,fmap)
+| If(predicate,then_blk,else_blk) -> let tpredicate = (check_expr vmap fmap predicate) in if tpredicate = "bool" then (vmap,fmap) else (print_string ("The predicate of an If statement should be a boolean expression not "^tpredicate^".\n") ;(vmap,fmap))
+| For(v_initialize,condition,step,stmt_blk) -> (vmap,fmap)
+| While(predicate,stmt_blk) -> let tpredicate = (check_expr vmap fmap predicate) in if tpredicate = "bool" then (vmap,fmap) else (print_string ("The predicate of an If statement should be a boolean expression not "^tpredicate^".\n") ;(vmap,fmap))
+)
+
+
 let check_program (fdecl_list,vdecl_list,errors) =
-	let functions = List.fold_left (fun fmap fdecl -> NameMap.add fdecl.fname fdecl fmap) NameMap.empty fdecl_list
+let inbuilt_functions = 
+	NameMap.add "print" {rtype = "void" ; fname = "print"; formals = []; body = []} NameMap.empty
+	in
+	let functions = List.fold_left (fun fmap fdecl -> (if (NameMap.mem fdecl.fname fmap) 
+			then print_string ("ERROR : Either the function '"^fdecl.fname^"' has already been declared or you have tried to declare an inbuilt function.\n") );
+				NameMap.add fdecl.fname fdecl fmap) inbuilt_functions fdecl_list
 	in
 
 	let globals = List.fold_left (fun varmap vdecl -> (match vdecl with
-		| Vassign(ty,id_list,expr) -> (List.fold_left (fun vmap id -> (if (NameMap.mem id vmap) 
+		| Vassign(ty,id_list,expr) -> (if ty <> "void" then (List.fold_left (fun vmap id -> (if (NameMap.mem id vmap) 
 			then print_string ("ERROR : variable "^id^" has already been declared in this scope.\n") );
 			let rhs = (check_expr vmap functions expr) 
 			in if ty = rhs then  (NameMap.add id ty vmap) 
-				else ((print_string ("Error : Variable "^id^" has type "^ty^" and RHS has type "^rhs^".\n")); vmap))
+				else (print_string ("Error : Variable "^id^" has type "^ty^" and RHS has type "^rhs^".\n"); vmap))
 				varmap id_list)
+			else (print_string ("Error : Variable(s) "^(String.concat "," id_list)^" cannot have type void.\n"); varmap))
 		| Vdefn("",_) -> varmap
-		| Vdefn(ty,id_list) -> (List.fold_left (fun vmap id -> (if (NameMap.mem id vmap) 
+		| Vdefn(ty,id_list) -> (if ty <> "void" then (List.fold_left (fun vmap id -> (if (NameMap.mem id vmap) 
 					then print_string ("ERROR : variable "^id^" has already been declared in this scope.\n") );
 					NameMap.add id ty vmap) varmap id_list)
-			)
-		) NameMap.empty vdecl_list
+			else (print_string ("Error : Variable(s) "^(String.concat "," id_list)^" cannot have type void.\n"); varmap))
+		)) NameMap.empty vdecl_list
 	
-	in (globals,functions)
+	in 
+	(if not(NameMap.mem "main" functions) then print_string "Error : There is no function 'main'!!! Where do you expect us to start the execution of the program??");(globals,functions)
