@@ -30,21 +30,20 @@ let rec check_expr varmap fmap = (function
 				else (print_string ("Illegal argument to function '"^fdecl.fname^"'. The function expected an argument of type "^tformal^" but was provided an argument of type "^tactual^" .\n"))
 		)) () actuals fdecl.formals)
     	with Invalid_argument(s) -> print_string ("Number of arguments provided in the call to function '"^fdecl.fname^"'' dont match the function definition.\n") 
-    );fdecl.rtype
-)
+    );fdecl.rtype)
 else (print_string ("Undeclared function '"^id^"'.\n");""))
 | Binop(e1,o,e2) -> let t1 = check_expr varmap fmap e1 and t2 = check_expr varmap fmap e2 in
 					(match o with
-					|Add -> (if not(t1 = t2) then print_string ("Error in Binary operator '+' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
-					|Sub -> (if not(t1 = t2) then print_string ("Error in Binary operator '-' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
-					|Mult -> (if not(t1 = t2) then print_string ("Error in Binary operator '*' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
-					|Div -> (if not(t1 = t2) then print_string ("Error in Binary operator '/' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
-					|Equal -> (if not(t1 = t2) then print_string ("Error in Binary operator '==' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
-					|Neq -> (if not(t1 = t2) then print_string ("Error in Binary operator '!=' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
-					|Less -> (if not(t1 = t2) then print_string ("Error in Binary operator '<' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
-					|Leq -> (if not(t1 = t2) then print_string ("Error in Binary operator '<=' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
-					|Greater -> (if not(t1 = t2) then print_string ("Error in Binary operator '>' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
-					|Geq -> (if not(t1 = t2) then print_string ("Error in Binary operator '>=' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
+					|Add -> (if t1 <> t2 then print_string ("Error in Binary operator '+' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
+					|Sub -> (if t1 <> t2 then print_string ("Error in Binary operator '-' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
+					|Mult -> (if t1 <> t2 then print_string ("Error in Binary operator '*' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
+					|Div -> (if t1 <> t2 then print_string ("Error in Binary operator '/' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));t1
+					|Equal -> (if t1 <> t2 then print_string ("Error in Binary operator '==' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
+					|Neq -> (if t1 <> t2 then print_string ("Error in Binary operator '!=' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
+					|Less -> (if t1 <> t2 then print_string ("Error in Binary operator '<' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
+					|Leq -> (if t1 <> t2 then print_string ("Error in Binary operator '<=' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
+					|Greater -> (if t1 <> t2 then print_string ("Error in Binary operator '>' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
+					|Geq -> (if t1 <> t2 then print_string ("Error in Binary operator '>=' expression on the left has type "^t1^" and expression on the right has type "^t2^".\n"));"bool"
 				)
 | Objid(_) -> "void"
 | Objcall(_) -> "void"
