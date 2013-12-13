@@ -1,17 +1,19 @@
 int a,b,c;
-/*float b = 3;
-//int 9a;
+float b = 3;
+/*/int 9a;
 int d = c = 3.0;
 int a=1.2;
 */
 float e = 1.4e-23;
 //int x = c + 43 * 2;
 //int y = c + 43.0 * 2;
-int print(int a)
+int main(int a)
 {
-	
+	int a = 3.0;
+	if(3<0) {}
+	return 3.3;
 }
 
 bool z = 2.0 * print(a);
 
-
+void u,v;
