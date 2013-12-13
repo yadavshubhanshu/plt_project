@@ -1,6 +1,6 @@
 int a,b,c;
 float b = 3;
-/*/int 9a;
+/*int 9a;
 int d = c = 3.0;
 int a=1.2;
 */
@@ -10,7 +10,7 @@ float e = 1.4e-23;
 int main(int a)
 {
 	int a = 3.0;
-	if(3<0) {}
+	if(3) {}
 	return 3.3;
 }
 
