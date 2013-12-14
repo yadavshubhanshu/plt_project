@@ -12,7 +12,7 @@ let _ =
   else (Sys.argv.(1),Compile)
   in
   let len = String.length filename in 
-  if String.sub filename (len - 5) (len - 1)  = ".svip" then
+  if String.sub filename (len - 5) 5  = ".svip" then
     let lexbuf = Lexing.from_channel (open_in filename) in
     let program = Parser.program Scanner.token lexbuf   in
     match action with
