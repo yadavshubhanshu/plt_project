@@ -12,7 +12,7 @@ let _ =
   else (Sys.argv.(1),Compile)
   in
   let len = String.length filename in 
-  if filename.[len-5]='.' && filename.[len-4]='s' && filename.[len-3]='v' && filename.[len-2]='i' && filename.[len-1]='p' then
+  if String.sub filename (len - 5) (len - 1)  = ".svip" then
     let lexbuf = Lexing.from_channel (open_in filename) in
     let program = Parser.program Scanner.token lexbuf   in
     match action with
@@ -27,7 +27,9 @@ let _ =
 
     | Interpret -> (*ignore (Interpret.run (List.rev program))*)print_endline "Not Implemented Yet"
     | Bytecode -> print_endline "Program has been parsed"
-    | Compile -> print_endline "Program has been parsed"
+    | Compile -> let (vdecl,fdecl,errors) = program in 
+              let c_program = Codegen.check_program (List.rev (fdecl),List.rev (vdecl),errors,filename) in 
+                print_endline "C code generated"
   else print_endline "Error reading the file. It is only possible to compile a '.svip' file"
 
 
