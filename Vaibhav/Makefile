@@ -1,4 +1,4 @@
-OBJS = sast.cmo ast.cmo parser.cmo scanner.cmo svipc.cmo
+OBJS = ast.cmo sast.cmo codegen.cmo parser.cmo scanner.cmo svipc.cmo
 
 TESTS = \
 arith1 \
@@ -37,9 +37,6 @@ scanner.ml : scanner.mll
 parser.ml parser.mli : parser.mly
 	ocamlyacc -v parser.mly
 
-ast.cmo : ast.ml
-	ocamlc -c ast.ml
-	
 %.cmo : %.ml
 	ocamlc -c $<
 

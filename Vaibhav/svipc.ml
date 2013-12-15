@@ -17,19 +17,16 @@ let _ =
     let program = Parser.program Scanner.token lexbuf   in
     match action with
 
-    | Ast ->let (vdecl,fdecl,errors) = program in 
-            let listing = Ast.string_of_program (List.rev (vdecl),List.rev (fdecl))
+    | Ast -> let listing = Ast.string_of_program program
              in print_endline listing;
                 print_endline ("\nProgram has been parsed with " ^ string_of_int !Ast.error_count ^ " errors.");
-    | Sast -> let (vdecl,fdecl,errors) = program in 
-              let s_program = Sast.check_program (List.rev (fdecl),List.rev (vdecl),errors) in 
+    | Sast ->   let (_,_,_) = Sast.check_program program in
                 print_endline ("\nProgram has been semantically checked with " ^ string_of_int !Ast.error_count ^ " errors.");
 
-    | Interpret -> (*ignore (Interpret.run (List.rev program))*)print_endline "Not Implemented Yet"
+    | Interpret -> (*ignore (Interpret.run program)*)print_endline "Not Implemented Yet"
     | Bytecode -> print_endline "Program has been parsed"
-    | Compile -> let (vdecl,fdecl,errors) = program in 
-              let c_program = Codegen.check_program (List.rev (fdecl),List.rev (vdecl),errors,filename) in 
-                print_endline "C code generated"
+    | Compile -> let _ = Codegen.check_program (program,filename) in 
+                print_endline "\nC code generated"
   else print_endline "Error reading the file. It is only possible to compile a '.svip' file"
 
 

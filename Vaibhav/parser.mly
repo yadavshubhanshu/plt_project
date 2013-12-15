@@ -12,11 +12,11 @@
 
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
-%token PLUS MINUS TIMES DIVIDE ASSIGN
-%token EQ NEQ LT LEQ GT GEQ
-%token RETURN IF ELSE FOR WHILE BREAK CONTINUE
-%token INT IMAGE PIXEL FLOAT STRING BOOL ARRAY VOID
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA TO LBRACKET RBRACKET DOT
+%token PLUS MINUS TIMES DIVIDE ASSIGN MOD PLUSEQ MINUSEQ TIMESEQ DIVIDEEQ MODEQ
+%token EQ NEQ LT LEQ GT GEQ INCR DECR NOT 
+%token RETURN IF ELSE FOR WHILE BREAK CONTINUE IN WITH DO
+%token INT IMAGE PIXEL FLOAT STRING BOOL VOID VIDEO
 %token <bool> TRUE FALSE
 %token <int> INTEGERS
 %token <float> FLOATS
@@ -26,21 +26,25 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
-%right ASSIGN
+%right ASSIGN PLUSEQ MINUSEQ TIMESEQ DIVIDEEQ MODEQ
+%nonassoc  UMINUS NOT INCR DECR
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE 
+%left MOD
 
 %start program
 %type <Ast.program> program
 
 %%
-
 program:
-  /* nothing */ { ([], [], !Ast.error_count) }
- | program vdecl_opt {let (a,b,_)=$1 in  (($2 :: a), b ,!Ast.error_count)}
- | program fdefn {let (a,b,_)=$1 in (a, ($2 :: b),!Ast.error_count) }
+  rev_program { List.rev $1 }
+
+rev_program:
+  /* nothing */ { [] }
+ | rev_program stmt { Stmt($2)::$1 }
+ | rev_program fdefn { Fdefn($2)::$1 }
  /*| program error {print_endline ("Error while parsing " ^ error_position()) ; (fst $1,snd $1)}*/
   
 
@@ -52,7 +56,7 @@ fdefn:
       formals = $4;
       body = $6 
       } }
-  | error LPAREN formal_opt RPAREN stmt_block
+/*  | error LPAREN formal_opt RPAREN stmt_block
      { print_endline ("No return type or illegal identifier for function "  ^ error_position ());{ 
       rtype = "";
       fname = "";
@@ -101,21 +105,37 @@ fdefn:
       formals = [];
       body = [] 
       } }
-
-
+*/
+/*
 vdecl_opt:
   SEMI    { Vdefn("",[]) } 
   | vdecl SEMI  { $1 }
   | error  { print_endline ("Error declaring variable "  ^ error_position ());Vdefn("",[])}
-  
+*/  
 vdecl:
     v_type id_list      { Vdefn($1,List.rev $2) }
   | v_type id_list ASSIGN expr   { Vassign($1,List.rev $2,$4) }
 
 
+id_array:
+   ID  { Single($1) }
+  |ID LBRACKET INTEGERS RBRACKET { Array($1,$3,0) }
+  |ID LBRACKET INTEGERS RBRACKET LBRACKET INTEGERS RBRACKET { Array($1,$3,$6) }
+
+id_array_access:
+   ID  { ASingle($1) }
+  |ID LBRACKET range RBRACKET { AArray($1,$3,Range(0,0)) }
+  |ID LBRACKET range RBRACKET LBRACKET range RBRACKET { AArray($1,$3,$6) }
+
+range:
+|INTEGERS   { Index($1) }
+|INTEGERS TO INTEGERS     { Range($1,$3) }
+|TO     { Range(0,-1) }
+
 id_list:
-    ID  { [$1] }
-  | id_list COMMA ID { ($3) :: $1  }
+    id_array  { [$1] }
+  | id_list COMMA id_array { ($3) :: $1  }
+
 
 v_type:
   | VOID    { "void" }
@@ -123,9 +143,9 @@ v_type:
   | FLOAT   { "float" }
   | PIXEL   { "pixel" }
   | IMAGE   { "image" }
-  | ARRAY   { "array" }
   | STRING  { "string" }
   | BOOL    { "bool" }
+  | VIDEO   { "video" }
 
 stmt_block:
     LBRACE stmt_list RBRACE  { List.rev $2 } 
@@ -160,7 +180,9 @@ stmt:
 | IF LPAREN expr RPAREN stmt %prec NOELSE  { If($3,$5,Block([])) }
 | IF LPAREN expr RPAREN stmt ELSE stmt  { If($3,$5,$7) }
 | FOR LPAREN v_expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt { For($3,$5,$7,$9) }
+| FOR LPAREN v_expr_opt IN id_array_access RPAREN stmt { For_list($3,$5,$7) }
 | WHILE LPAREN expr RPAREN stmt { While($3,$5) }
+| DO stmt WHILE LPAREN expr RPAREN { Do_while($5,$2) }
 | RETURN expr_opt SEMI  { Return($2) }
 | BREAK SEMI { Break }
 | CONTINUE SEMI { Continue }
@@ -168,26 +190,47 @@ stmt:
 
 
 expr:
-    ID ASSIGN expr { Assign($1,$3) }
+    id_array_access ASSIGN expr { Assign($1,$3) }
+  | binop_assign { $1 }
   /*| vdecl       { Vdecl($1) }*/
-  | ID { Id($1) }
+  | id_array_access { Id($1) }
   | INTEGERS { Integers($1) }
   | STRINGS { Strings($1) }
   | FLOATS { Floats($1) }
   | TRUE  { Boolean($1) }
   | FALSE { Boolean($1) }
-  | LPAREN expr RPAREN { $2 }
-  | expr PLUS   expr { Binop($1, Add,    $3) }
-  | expr MINUS  expr { Binop($1, Sub,    $3) }
-  | expr TIMES  expr { Binop($1, Mult,   $3) }
-  | expr DIVIDE expr { Binop($1, Div,    $3) }
-  | expr EQ     expr { Binop($1, Equal,  $3) }
-  | expr NEQ    expr { Binop($1, Neq,    $3) }
-  | expr LT     expr { Binop($1, Less,   $3) }
-  | expr LEQ    expr { Binop($1, Leq,    $3) }
-  | expr GT     expr { Binop($1, Greater,$3) }
-  | expr GEQ    expr { Binop($1, Geq,    $3) }
+  | uop  { $1 }
+  | binop { $1 }
+  | LPAREN expr RPAREN { Paren($2) }
   | ID LPAREN actual_opt RPAREN { Call($1,List.rev $3) }
   | OBJECT LPAREN actual_opt RPAREN { Objcall(fst $1,snd $1,List.rev $3) }
   | OBJECT  { Objid(fst $1,snd $1) }
- 
+
+uop:
+  | MINUS expr  %prec UMINUS { Uop(Sub,$2) }
+  | NOT expr  %prec NOT { Uop(Not,$2) }
+  | INCR id_array_access     { Uop(Incr,Id($2)) } 
+  | DECR id_array_access     { Uop(Decr,Id($2)) }
+  | id_array_access INCR    { Uop(Incr,Id($1)) } 
+  | id_array_access DECR    { Uop(Decr,Id($1)) }
+
+
+binop:
+  | expr PLUS expr     { Binop($1, Add , $3) }
+  | expr MINUS expr    { Binop($1, Sub , $3) }
+  | expr TIMES expr    { Binop($1, Mult , $3) }
+  | expr DIVIDE expr   { Binop($1, Div , $3) }
+  | expr MOD expr       { Binop($1, Mod , $3) }
+  | expr EQ expr       { Binop($1, Equal , $3) }
+  | expr NEQ expr      { Binop($1, Neq , $3) }
+  | expr LT  expr      { Binop($1, Less , $3) }
+  | expr LEQ expr      { Binop($1, Leq , $3) }
+  | expr GT expr     { Binop($1, Greater , $3) }
+  | expr GEQ expr     { Binop($1,Geq , $3) }
+
+  binop_assign:
+  | id_array_access PLUSEQ expr     { Assign($1,Binop(Id($1),Add,$3)) }
+  | id_array_access MINUSEQ expr    { Assign($1,Binop(Id($1),Sub,$3)) }
+  | id_array_access TIMESEQ expr    { Assign($1,Binop(Id($1),Mult,$3)) }
+  | id_array_access DIVIDEEQ expr   { Assign($1,Binop(Id($1),Div,$3)) }
+  | id_array_access MODEQ expr      { Assign($1,Binop(Id($1),Mod,$3)) }
