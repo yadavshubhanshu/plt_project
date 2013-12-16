@@ -14,7 +14,7 @@
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA TO LBRACKET RBRACKET DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD PLUSEQ MINUSEQ TIMESEQ DIVIDEEQ MODEQ
-%token EQ NEQ LT LEQ GT GEQ INCR DECR NOT 
+%token EQ NEQ LT LEQ GT GEQ NOT 
 %token RETURN IF ELSE FOR WHILE BREAK CONTINUE IN WITH DO
 %token INT IMAGE PIXEL FLOAT STRING BOOL VOID VIDEO
 %token <bool> TRUE FALSE
@@ -163,8 +163,8 @@ formal_opt:
   | formal_list   { List.rev $1 }
 
 formal_list:
-    v_type ID    { [($1,$2)] }
-  | formal_list COMMA v_type ID   { ($3,$4) :: $1 }
+    v_type id_array    { [($1,$2)] }
+  | formal_list COMMA v_type id_array   { ($3,$4) :: $1 }
 
 actual_opt:
     expr_opt   { [$1] }
@@ -186,7 +186,7 @@ stmt:
 | RETURN expr_opt SEMI  { Return($2) }
 | BREAK SEMI { Break }
 | CONTINUE SEMI { Continue }
-| error    { print_endline ("Error in statement " ^ error_position() ^ " or maybe a missing semicolon in a previous statement"); Vexpr(Expr(Noexpr)) }
+| error    { print_endline ("Error: Syntax error in statement " ^ error_position() ^ " or maybe a missing semicolon in a previous statement"); Vexpr(Expr(Noexpr)) }
 
 
 expr:
@@ -209,10 +209,6 @@ expr:
 uop:
   | MINUS expr  %prec UMINUS { Uop(Sub,$2) }
   | NOT expr  %prec NOT { Uop(Not,$2) }
-  | INCR id_array_access     { Uop(Incr,Id($2)) } 
-  | DECR id_array_access     { Uop(Decr,Id($2)) }
-  | id_array_access INCR    { Uop(Incr,Id($1)) } 
-  | id_array_access DECR    { Uop(Decr,Id($1)) }
 
 
 binop:

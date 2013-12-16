@@ -39,8 +39,6 @@ rule token = parse
 | "/="		{ DIVIDEEQ }
 | "%="		{ MODEQ }
 | "+="		{ PLUSEQ }
-| "++"		{ INCR }
-| "--"		{ DECR }
 | '!'		{ NOT }
 | "in"		{ IN }
 | "with"	{ WITH }

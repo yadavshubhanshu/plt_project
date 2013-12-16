@@ -3,7 +3,6 @@ let error_count = ref 0
 type op = 
     Add | Sub | Mult | Div | Mod 
   | Equal | Neq | Less | Leq | Greater | Geq | Not
-  | Incr | Decr
 
 
 type range = 
@@ -60,7 +59,7 @@ type stmt =
 type func_decl = {
     rtype : string;
     fname : string;
-    formals : (string*string) list;
+    formals : (string * id) list;
     body : stmt list;
   }
 
@@ -96,7 +95,7 @@ let rec string_of_expr = function
       | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | _ -> "") ^ " " ^
       string_of_expr e2
   | Uop(o,e) ->  (match o with
-        Sub -> "-" | Incr -> "++" | Decr -> "--" | Not -> "!" | _ -> "") ^ " " ^
+        Sub -> "-" | Not -> "!" | _ -> "") ^ " " ^
       string_of_expr e
   | Paren(e) -> "(" ^ string_of_expr e ^")"
   | Assign(v, e) -> string_of_id_access v ^ " = " ^ string_of_expr e
@@ -143,7 +142,7 @@ let rec string_of_stmt = function
   | Continue -> "continue ;\n"
 
 
-let string_of_formal (ty,id) = ty ^ " " ^ id 
+let string_of_formal (ty,id) = ty ^ " " ^ string_of_id id 
 
 
 let string_of_fdefn fdefn =

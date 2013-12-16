@@ -38,16 +38,36 @@ Assign(j,Binop(j,Add,k));
 */
 /* commented old tests */
 
-int b;
-//int b =  3;
-//int a,b,c[2],d;
-//float e,b,s[3] = a;
+int a =  3;
+int c[2],d;
+float e,b,s[3] = 3.0;
 
-//if(a>2){}
-//return 3;
+
+image i = open("");
+video j = i;
+
 {
 	int a;
-	//int a;
-	a;
+  {
+		a;
+		float a = 4.0;  
+  }
+  a = 3;
 }
-int a;
+//a = m(1,1.0);
+int m(int a,float b)
+{
+	a=3;
+	b=2;
+	return 3.0;
+}
+a = m(1,1.0);
+a = m(1.0,1);
+
+/*
+binop
+uop
+inbuilt calls
+arrays check
+objid and obj call
+*/
