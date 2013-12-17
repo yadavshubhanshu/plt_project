@@ -71,12 +71,54 @@ let lhs =
 (*Handle all specific inbuilt functions before the generic call*)
 | Call("display",actuals) -> 
 (*Handle inbuilt display function here*) 
+ignore
+(if List.length actuals <> 1 then 
+	(print_endline("Wrong number of arguments in call to the 'display' function.");incr Ast.error_count)
+ else
+ 	(let param = List.hd actuals in 
+ 		if check_expr (globals,locals) param <> "string" then 
+ 				(print_endline("Wrong number of arguments in call to the 'display' function.");
+ 				incr Ast.error_count)
+ 	) 
+);
 "void"
 | Call("open",actuals) -> 
 (*Handle inbuilt open function here*)
+ignore
+(let len = List.length actuals in
+	(if len = 1 then 
+		(let param = List.hd actuals in 
+			let ty = check_expr (globals,locals) param in
+				(if ty <> "string" then 
+ 				(print_endline("ERROR: Illegal argument to function 'open'. The function expected an argument of type string but was provided an argument of type "^ty^" .");
+ 				incr Ast.error_count)))
+	else if len = 2 then 
+		(let param1::param2::[] = actuals in
+			let ty1 = check_expr (globals,locals) param1 and ty2 = check_expr (globals,locals) param2 in
+					if ty1 <> "string" || ty2 <> "bool" then 
+		 				(print_endline("ERROR: Illegal argument to function 'open'. The function expected arguments of type string and bool but was provided arguments of type "^ty1^", "^ty2^" .");
+		 				incr Ast.error_count)
+		)
+	else 
+		(print_endline("ERROR: Wrong number of arguments in call to the 'open' function.");
+		incr Ast.error_count)
+ 	) 
+);
 "image"
 | Call("save",actuals) -> 
 (*Handle inbuilt save function here*)
+ignore
+(if List.length actuals <> 1 then 
+	(print_endline("ERROR: Wrong number of arguments in call to the 'save' function.");
+	incr Ast.error_count)
+ else
+ 	(let param = List.hd actuals in
+ 		let ty =  check_expr (globals,locals) param in
+	 		if ty <> "string" then 
+ 				(print_endline("ERROR: Illegal argument to function 'save'. The function expected an argument of type string but was provided an argument of type "^ty^" .");
+ 					incr Ast.error_count)
+ 	) 
+);
 "void"
 | Call(id,actuals) -> 
 (*Handle all other generic calls here*)
