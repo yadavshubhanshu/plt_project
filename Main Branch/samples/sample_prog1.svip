@@ -1,0 +1,19 @@
+string s = input("Enter the path to the image file: ");
+display("The path you entered is: ",s);
+
+image i1 = open(s);
+
+image make_red_0(image i)
+{
+	for(int k=0;k<i.height;k+=1)
+	 for(int l=0;l<i.width;l+=1)
+		{
+  		i[k][l].C1 = 255 - i[k][l].C1;
+  		i[k][l].C2 = 255 - i[k][l].C2;
+  		i[k][l].C3 = 255 - i[k][l].C3;
+		 }
+	return i;
+}
+s = input("Enter the path for the output image file: ");
+save(make_red_0(i1),s);
+/*display(make_red_0(i1));*/

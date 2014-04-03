@@ -1,0 +1,6 @@
+void ImInvalidInit(image I)
+{
+	image I1 = I2;	
+	image I3(I2);	//invalid
+	image I4 = open("/home/ImageForTesting.bmp");
+}

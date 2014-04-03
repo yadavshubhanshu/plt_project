@@ -1,0 +1,26 @@
+int a = 1000;
+int b = 1500;
+image x[a][b];
+
+
+
+
+
+pixel p = x[a-3][b-7];
+
+image c,d,e;
+
+c = x[3:123][6];	//valid
+d = x[3:123][6:168];	//valid
+e = x[3:100][6:789];   //valid access
+
+image ImInvalidInit(image I)
+{
+	image I1 = I2; //I2 undeclared	
+	image I3(I2);	//invalid
+	return image I4 = open("/home/ImageForTesting.bmp");
+}
+
+
+
+

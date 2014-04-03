@@ -1,0 +1,14 @@
+ImInvalidInit(Image * I)
+{
+	image I1 = open("/home/DefaultImage");
+	image I2 = open("/home/DefaultImage1");
+	image i3;
+	i3 = I1 + I2;
+	i3 = I1 * I2;
+	i3 = I1 / I2;
+	i3 = I1 - I2;
+	I1 + I2;
+	I1 * I2;
+	I1 / I2;
+	I1 - I2;
+}

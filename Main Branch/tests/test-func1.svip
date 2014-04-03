@@ -1,0 +1,21 @@
+int add(a,int b)   // illegal formal arg
+{
+  return a + b;
+}
+
+
+int all(int a,int b) //no stmt block . missing right brace
+
+  int a;
+  a = add(39, 3);
+  display(a);
+}
+
+
+
+if(a>0)else display(a);  // no then blk
+
+
+bool word(int a,)
+if(a>0)else display(a);  // no then blk
+}

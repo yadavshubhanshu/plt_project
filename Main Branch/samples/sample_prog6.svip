@@ -1,0 +1,49 @@
+string s = input("Enter the path to the image file: ");
+display("The path you entered is: ",s);
+
+int a[3][3] = [[-1,-1,-1],[-1,8,-1],[-1,-1,-1]];
+image from = open(s);
+image to = open(s);
+
+int sum1,sum2,sum3;
+
+for(int k = 0;k < from.height - 3; k+=1)
+{
+	for(int l = 0; l< from.width - 3; l+=1)
+	{
+	 sum1 = sum2 = sum3 = 0;
+	 for( int i = 0; i < 3; i+=1)
+		 {
+		  for(int j = 0; j < 3; j+=1)
+			  {
+			   sum1 += from[(i + k)][(j+l)].C1 * a[i][j];
+			   sum2 += from[(i + k)][(j+l)].C2 * a[i][j];
+			   sum3 += from[(i + k)][(j+l)].C3 * a[i][j];
+			  }
+		  }
+	  to[(k + 4)][(l+4)].C1 = sum1;
+	  to[(k + 4)][(l+4)].C2 = sum2;	
+	  to[(k + 4)][(l+4)].C3 = sum3;
+	  
+	}
+}
+
+image convert2grayscale(image to)
+{
+	for(int k = 0;k < to.height - 3; k+=1)
+	{
+		for(int l = 0; l< to.width - 3; l+=1)
+		{
+			   sum1 = to[k][l].C1 + to[k][l].C1 + to[k][l].C1; 
+			   to[k][l].C1 = to[k][l].C2 = to[k][l].C3 = sum1 / 3;
+		}
+	}
+ return to;
+}
+
+
+s = input("Enter the path for the output image file: ");
+display("The path you entered is: ",s);
+save(convert2grayscale(to),s);
+
+

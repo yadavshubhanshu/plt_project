@@ -1,0 +1,27 @@
+string s = input("Enter the path to the image file: ");
+display("The path you entered is: ",s);
+
+string s1 = input("Enter the path for the first output image file: ");
+display("The path you entered is: ",s1);
+input();
+string s2 = input("Enter the path for the second output image file: ");
+display("The path you entered is: ",s2);
+
+image i1 = open(s);
+
+image crop(image i,int a,int b)
+{
+ image df[a][b];
+ for(int k = 0; k < b; k+=1)
+  for(int j = 0; j < a; j+=1)
+    df[k][j] =  i[k][j];
+  return df;
+}
+
+
+display(crop(i1,100,100));
+
+
+
+save(i1[0:100][0:100],s2);
+input();

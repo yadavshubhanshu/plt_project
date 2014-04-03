@@ -1,0 +1,123 @@
+string s = input("Enter the path to the image file: ");
+display("The path you entered is: ",s);
+image i1 = open(s);
+/*
+image make_red_0(image i)
+{
+	for(int k=0;k<i.height;k+=1)
+	 for(int l=0;l<i.width;l+=1)
+		{
+		i[k][l].C1 = 255 - i[k][l].C1;
+		i[k][l].C2 = 255 - i[k][l].C2;
+		i[k][l].C3 = 255 - i[k][l].C3;
+		 }
+	return i;
+}
+
+save(make_red_0(i1,100,100),s);
+input();
+*/
+
+//display(make_red_0(i1));
+//input("image after making red channel 0");
+
+/*
+int aa[81] = [1,0,0,0,0,0,0,0,0,  0,1,0,0,0,0,0,0,0,  0,0,1,0,0,0,0,0,0,  0,0,0,1,0,0,0,0,0,  0,0,0,0,1,0,0,0,0,  0,0,0,0,0,1,0,0,0,  0,0,0,0,0,0,1,0,0,  0,0,0,0,0,0,0,1,0, 0,0,0,0,0,0,0,0,1];
+int a,b,c,d,pos;
+a = i1.height;
+b = i1.width;
+for(int i = 0; i < a; i+=1)
+ for(int j = 0; j < b; j+=1)
+  {
+   c = i % 9; d = j % 9;
+   pos = (9 * c) + d;
+   i1[i][j].C1 =  aa[pos] * i1[i][j].C1;
+		i1[i][j].C2 = aa[pos] * i1[i][j].C2;
+		i1[i][j].C3 = aa[pos] * i1[i][j].C3;
+  }
+*/
+
+/*
+image crop(image i,int a,int b)
+{
+image df[a][b];
+
+for(int k = 0; k < b; k+=1)
+ for(int j = 0; j < a; j+=1)
+  {
+   df[k][j] =  i[k][j];
+  }
+  return df;
+}
+
+s = input("Enter the path for the second image file: ");
+display("The path you entered is: ",s);
+
+
+save(crop(i1,100,100),s);
+input();
+*/
+/*
+image from = open(s);
+image to = open(s);//[from.width][from.height];
+
+int a[81] = [1,0,0,0,0,0,0,0,0,  0,1,0,0,0,0,0,0,0,  0,0,1,0,0,0,0,0,0,  0,0,0,1,0,0,0,0,0,  0,0,0,0,1,0,0,0,0,  0,0,0,0,0,1,0,0,0,  0,0,0,0,0,0,1,0,0,  0,0,0,0,0,0,0,1,0, 0,0,0,0,0,0,0,0,1];
+int pos;
+int sum1,sum2,sum3;
+for(int k = 0;k < from.height - 9; k+=1)
+{
+for(int l = 0; l < from.width - 9; l+=1)
+{
+sum1 = sum2 = sum3 = 0;
+for( int i = 0; i < 9; i+=1)
+ {
+ for(int j = 0; j < 9; j+=1)
+  {
+   pos = (9 * i) + j;
+   sum1 += from[(i + k)][(j+l)].C1 * a[pos];
+   sum2 += from[(i + k)][(j+l)].C2 * a[pos];
+   sum3 += from[(i + k)][(j+l)].C3 * a[pos];
+  }
+  }
+  to[(k + 4)][(l+4)].C1 = sum1/13;
+  to[(k + 4)][(l+4)].C2 = sum2/13;
+  to[(k + 4)][(l+4)].C3 = sum3/13;
+}
+}
+
+
+save(to,s);
+input();
+*/
+
+int a[9] = [-1,-1,-1, -1,8,-1, -1,-1,-1];
+image from = open(s);
+image to = open(s);
+
+int pos;
+int sum1,sum2,sum3;
+for(int k = 0;k < from.height - 3; k+=1)
+{
+for(int l = 0; l < from.width - 3; l+=1)
+{
+sum1 = sum2 = sum3 = 0;
+for( int i = 0; i < 3; i+=1)
+ {
+ for(int j = 0; j < 3; j+=1)
+  {
+   pos = (3 * i) + j;
+   sum1 += from[(i + k)][(j+l)].C1 * a[pos];
+   sum2 += from[(i + k)][(j+l)].C2 * a[pos];
+   sum3 += from[(i + k)][(j+l)].C3 * a[pos];
+  }
+  }
+  to[(k + 4)][(l+4)].C1 = sum1;
+  to[(k + 4)][(l+4)].C2 = sum2;
+  to[(k + 4)][(l+4)].C3 = sum3;
+}
+}
+
+
+save(to,s);
+input();
+

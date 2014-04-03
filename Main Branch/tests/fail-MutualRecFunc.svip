@@ -1,0 +1,20 @@
+int sub(int a);
+int add(int a);
+
+int sub(int a )
+{
+	if(a > 1))
+	{
+		return(add(a-2));
+	}
+}
+int add(int a)
+{
+	if(a > 2)
+	{
+		return(sub(a+1));
+	}
+}
+
+int a = add(5);
+display(a);

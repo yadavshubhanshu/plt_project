@@ -1,0 +1,15 @@
+image u = create_img(2,4);  // function not yet declared 
+
+image create_img(int a,int b)
+{
+  image a[a][b];  //a already declared in scope
+  image x[a][b];
+  image y = open(2);  //open should have string argument
+  return a; // a is an int not an image
+}
+
+
+image v = create_img(2,3,4);  //wrong number of arguments to the function
+
+
+image w = create_img("s",22);   //the function needs two ints not a string

@@ -1,0 +1,11 @@
+
+int fac(int a)
+{
+	if(a > 0)
+	{
+		return(a * fac(a-1));
+	}
+}
+
+int a = fac(5);
+display(a);

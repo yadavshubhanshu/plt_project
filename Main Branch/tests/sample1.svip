@@ -1,0 +1,12 @@
+string s = input("Enter the path to the image: ");
+image i1 = open(s);
+display("The path to the file is : ",s);
+
+video make_vid(image i3)
+{
+	video v = i3 + i3;
+	return i3+i3;
+}
+
+
+video v = make_vid(i1);

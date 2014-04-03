@@ -1,0 +1,2 @@
+  if (0) display(42);
+  display(17);

@@ -1,0 +1,11 @@
+
+int rec_sum(int a, int sum )
+{
+	if(a > 0)
+	{
+		return(rec_sum(a-1, sum + a));
+	}
+}
+
+int a = rec_sum(5, 0);
+display(a);

@@ -1,0 +1,33 @@
+/* This is a comment and it should be ignored */
+/* this should give an error */
+/* 1. semicolon allowed as a single character in the line 
+2. only variable declarations allowed outside functions
+*/
+//this should work
+int a;
+  ;
+int 9a;	/*gives error*/
+int d 
+image e;
+2; /* gives error */
+a=2; /* gives error */
+bool h;
+bool h = true;
+bool h = false;
+void v;
+break;  /*gives error */
+continue;  /*gives error */
+return 0;  /*gives error */
+string; //gives error
+z //gives error
+a; //gives error
+if(a<2){} //gives error
+for(int i=0;i<2;i++){} //gives error
+while(1){}
+float a,b,c=2;
+pixel f;
+ (int a; )//gives error
+ { int a;} //gives error
+ 2 = int a ; //gives error
+float x,y,z = ;
+pixel a,9n,c;

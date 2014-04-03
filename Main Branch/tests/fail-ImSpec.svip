@@ -1,0 +1,6 @@
+ImInvalidInit(Image * I)
+{
+	Image I1 = I2;	//valid
+	Image I3(I2);	//Invalid
+	Image I4 = open("/home/ImageForTesting.bmp");
+}

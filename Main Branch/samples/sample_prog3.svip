@@ -1,0 +1,33 @@
+string s = input("Enter the path to the image file: ");
+display("The path you entered is: ",s);
+
+image from = open(s);
+image to = open(s);//[from.width][from.height];
+
+int a[81] = [1,0,0,0,0,0,0,0,0,  0,1,0,0,0,0,0,0,0,  0,0,1,0,0,0,0,0,0,  0,0,0,1,0,0,0,0,0,  0,0,0,0,1,0,0,0,0,  0,0,0,0,0,1,0,0,0,  0,0,0,0,0,0,1,0,0,  0,0,0,0,0,0,0,1,0, 0,0,0,0,0,0,0,0,1];
+int pos;
+int sum1,sum2,sum3;
+for(int k = 0;k < from.height - 9; k+=1)
+  {
+    for(int l = 0; l < from.width - 9; l+=1)
+      {
+        sum1 = sum2 = sum3 = 0;
+        for( int i = 0; i < 9; i+=1)
+        {
+         for(int j = 0; j < 9; j+=1)
+          {
+           pos = (9 * i) + j;
+           sum1 += from[(i + k)][(j+l)].C1 * a[pos];
+           sum2 += from[(i + k)][(j+l)].C2 * a[pos];
+           sum3 += from[(i + k)][(j+l)].C3 * a[pos];
+          }
+        }
+        to[(k + 4)][(l+4)].C1 = sum1/13;
+        to[(k + 4)][(l+4)].C2 = sum2/13;
+        to[(k + 4)][(l+4)].C3 = sum3/13;
+      }
+    }
+
+s = input("Enter the path for the output image file: ");
+display("The path you entered is: ",s);
+save(to,s);
